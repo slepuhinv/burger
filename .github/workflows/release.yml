@@ -19,4 +19,4 @@ jobs:
 
             - run: |
                 echo "${{ secrets.KAPIBARA_SSH_PRIVATE_KEY }}" > kapibara
-                echo "${{ secrets.KAPIBARA_SSH_PASSPHRASE }}" | ssh root@kapibara.mooo.com -i kapibara StrictHostKeyChecking=no 'cd /opt/burger && docker compose pull && docker compose up -d'
+                echo "${{ secrets.KAPIBARA_SSH_PASSPHRASE }}" | ssh root@kapibara.mooo.com -i kapibara -o StrictHostKeyChecking=no 'cd /opt/burger && docker compose pull && docker compose up -d'
