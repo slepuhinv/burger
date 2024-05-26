@@ -1,0 +1,15 @@
+@Burger_HostAddress = http://localhost:5072
+
+GET {{Burger_HostAddress}}/expense/
+Accept: application/json
+
+###
+
+POST {{Burger_HostAddress}}/expense/
+Accept: application/json
+Content-Type: application/json
+
+{
+
+}
+
