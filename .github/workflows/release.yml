@@ -20,5 +20,6 @@ jobs:
             - run: |
                 echo "${{ secrets.KAPIBARA_SSH_PRIVATE_KEY }}" > kapibara
                 chmod 600 kapibara
+                eval "$(ssh-agent -s)"
                 echo "${{ secrets.KAPIBARA_SSH_PASSPHRASE }}" | ssh-add kapibara 
                 ssh root@kapibara.mooo.com -i kapibara -o StrictHostKeyChecking=no 'cd /opt/burger && docker compose pull && docker compose up -d'
