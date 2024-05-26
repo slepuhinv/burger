@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Components.Web;
+using Burger.Entity;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -8,6 +8,7 @@ namespace Burger.TelegramBot;
 public class TelegramProcessor(
     IConfiguration configuration,
     IUpdateHandler updateHandler,
+    IServiceScopeFactory serviceScopeFactory,
     ILogger<TelegramProcessor> logger) : IHostedService
 {
     private readonly string token = configuration.GetSection("TelegramBotToken").Get<string>() ?? throw new InvalidOperationException();
@@ -15,17 +16,27 @@ public class TelegramProcessor(
     private readonly TaskCompletionSource taskCompletionSource = new();
     private TelegramBotClient? botClient;
 
-    public Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
         botClient = new TelegramBotClient(token);
-        botClient.SetMyCommandsAsync([
+        await botClient.SetMyCommandsAsync([
             new BotCommand() { Command = "/edit_categories", Description = "Редактировать категории" }
         ], cancellationToken: cancellationToken);
 
 
         botClient.StartReceiving(updateHandler, cancellationToken: cancellationToken);
 
-        return Task.CompletedTask;
+        using (var scope = serviceScopeFactory.CreateScope()) {
+            var ctx = scope.ServiceProvider.GetRequiredService<BurgerContext>();
+            var users = ctx.Expenses.Select(x => x.ChatId).Distinct().ToList();
+
+            foreach (var user in users) {
+                await botClient.SendTextMessageAsync(user, $"Я запустился.\r\n{Environment.MachineName}\r\n{Environment.OSVersion}", cancellationToken: cancellationToken);
+            }
+        }
+
+        logger.LogInformation("Bot started");
+        //return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
