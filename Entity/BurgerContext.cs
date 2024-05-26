@@ -17,5 +17,7 @@ public class BurgerContext : DbContext
     public BurgerContext(IOptions<BurgerContextOptions> options)
     {
         this.options = options.Value;
+
+        Directory.CreateDirectory(Path.GetDirectoryName(options.Value.DbPath)!);
     }
 }

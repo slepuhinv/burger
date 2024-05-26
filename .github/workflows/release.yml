@@ -10,11 +10,13 @@ jobs:
         timeout-minutes: 20
         steps:
             - uses: actions/checkout@v4
-            
-            - run: cat appsettings.Production.json | jq '(.TelegramBotToken) |= "${{ secrets.TELEGRAM_BOT_TOKEN }}"'
 
             - run: dotnet publish /t:PublishContainer /p:Configuration=Release /p:BuildNumber=${{ github.run_number }}
 
             - run: docker login -u slepuhin -p ${{ secrets.DOCKERHUB_TOKEN }}
 
             - run: docker push -a slepuhin/burger
+
+            - run: |
+                echo ${{ secrets.KAPIBARA_SSH_PRIVATE_KEY }} > kapibara
+                echo ${{ secrets.KAPIBARA_SSH_PASSPHRASE }} | ssh root@kapibara.mooo.com -i kapibara StrictHostKeyChecking=no 'cd /opt/burger && docker compose pull && docker compose up -d'
