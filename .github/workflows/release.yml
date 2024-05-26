@@ -3,11 +3,18 @@ on:
         types: 
             - published
     push:
-        
+
 jobs:
     publish:
         runs-on: ubuntu-latest
         timeout-minutes: 20
         steps:
             - uses: actions/checkout@v4
-            - run: ls
+            
+            - run: cat appsettings.Production.json | jq '(.TelegramBotToken) |= "${{ secrets.TELEGRAM_BOT_TOKEN }}"'
+
+            - run: dotnet publish /t:PublishContainer /p:Configuration=Release /p:BuildNumber=${{ github.run_number }}
+
+            - run: docker login -u slepuhin -p ${{ secrets.DOCKERHUB_TOKEN }}
+
+            - run: docker push -a slepuhin/burger
