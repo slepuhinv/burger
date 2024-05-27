@@ -75,18 +75,25 @@ public class UpdateHandler(
                 Timestamp = update.Message.Date,
             };
 
+            long[] allUsers = [];
+
             using (var scope = scopeFactory.CreateScope()) {
                 var ctx = scope.ServiceProvider.GetRequiredService<BurgerContext>();
                 var entyty = ctx.Expenses.Add(expense);
                 ctx.SaveChanges();
+
+                allUsers = ctx.Expenses.Select(x => x.ChatId).Where(x => x != update.Message.Chat.Id).Distinct().ToArray();
             }
+
             var messageContent = BuildMessageContent(expense);
+
             var message = await botClient.SendTextMessageAsync(
-                update.Message.Chat.Id,
-                text: messageContent.Text,
-                parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
-                replyMarkup: messageContent.ReplyMarkup
-            );
+                    update.Message.Chat.Id,
+                    text: messageContent.Text,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                    replyMarkup: messageContent.ReplyMarkup
+                );
+
             using (var scope = scopeFactory.CreateScope()) {
                 var ctx = scope.ServiceProvider.GetRequiredService<BurgerContext>();
                 var exp = ctx.Expenses.Find(expense.Id);
@@ -94,6 +101,18 @@ public class UpdateHandler(
                     exp.MessageId = message.MessageId;
                     ctx.SaveChanges();
                 }
+            }
+
+            foreach (var userId in allUsers) {
+                var userText =
+                    $"{messageContent.Text}\r\n_[{update.Message.Chat.Username}](tg://user?id={update.Message.Chat.Id})_";
+
+                await botClient.SendTextMessageAsync(
+                    userId,
+                    text: userText,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                    replyMarkup: messageContent.ReplyMarkup
+                );
             }
         }
     }
