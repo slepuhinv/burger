@@ -1,4 +1,5 @@
 using Burger.Entity;
+using System.Reflection;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -31,7 +32,7 @@ public class TelegramProcessor(
             var users = ctx.Expenses.Select(x => x.ChatId).Distinct().ToList();
 
             foreach (var user in users) {
-                await botClient.SendTextMessageAsync(user, $"Я запустился.\r\n{Environment.MachineName}\r\n{Environment.OSVersion}", cancellationToken: cancellationToken);
+                await botClient.SendTextMessageAsync(user, $"Я запустился.\r\nv.{Assembly.GetExecutingAssembly().GetName().Version}\r\n{Environment.MachineName}\r\n{Environment.OSVersion}", cancellationToken: cancellationToken);
             }
         }
 
