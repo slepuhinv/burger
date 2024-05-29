@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>18645768-4294-4d18-9595-b6a698ca6568</UserSecretsId>
         <BuildNumber>0</BuildNumber>
-        <Version>2.0.0.$(BuildNumber)</Version>
+        <Version>2.1.0.$(BuildNumber)</Version>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <DockerfileContext>.</DockerfileContext>
         <ContainerRepository>slepuhin/burger</ContainerRepository>
