@@ -21,8 +21,8 @@ public class UpdateHandler(
     private TelegramMessage BuildMessageContent(Expense expense)
     {
         var text = expense.Deleted
-            ? $"~💸\r\n*{expense.Category}*\n\r{expense.Amount:C}~"
-            : $"💸\r\n*{expense.Category}*\n\r{expense.Amount:C}";
+            ? $"<s>💸\r\n<b>{expense.Category}</b>\n\r{expense.Amount:C}</s>"
+            : $"💸\r\n<b>{expense.Category}</b>\n\r{expense.Amount:C}";
 
         var replyMarkup = expense.Deleted
             ? null
@@ -90,7 +90,7 @@ public class UpdateHandler(
             var message = await botClient.SendTextMessageAsync(
                     update.Message.Chat.Id,
                     text: messageContent.Text,
-                    parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                     replyMarkup: messageContent.ReplyMarkup
                 );
 
@@ -110,7 +110,7 @@ public class UpdateHandler(
                 await botClient.SendTextMessageAsync(
                     userId,
                     text: userText,
-                    parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                     replyMarkup: messageContent.ReplyMarkup
                 );
             }
@@ -140,7 +140,7 @@ public class UpdateHandler(
                         messageId,
                         messageContent.Text,
                         replyMarkup: messageContent.ReplyMarkup as InlineKeyboardMarkup,
-                        parseMode: Telegram.Bot.Types.Enums.ParseMode.MarkdownV2,
+                        parseMode: Telegram.Bot.Types.Enums.ParseMode.Html,
                         cancellationToken: cancellationToken);
                 }
             }
