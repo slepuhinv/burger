@@ -21,8 +21,8 @@ public class UpdateHandler(
     private TelegramMessage BuildMessageContent(Expense expense)
     {
         var text = expense.Deleted
-            ? $"~💸\r\n*{expense.Category}*\n\r{expense.Amount} ₽~"
-            : $"💸\r\n*{expense.Category}*\n\r{expense.Amount} ₽";
+            ? $"~💸\r\n*{expense.Category}*\n\r{expense.Amount:C}~"
+            : $"💸\r\n*{expense.Category}*\n\r{expense.Amount:C}";
 
         var replyMarkup = expense.Deleted
             ? null
@@ -147,11 +147,26 @@ public class UpdateHandler(
         }
     }
 
+    private async Task TryHandleReport(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
+        if (update.Message?.Text == "/report") {
+            using var scope = scopeFactory.CreateScope();
+            var reportBuilder = scope.ServiceProvider.GetRequiredService<ReportBuilder>();
+            var report = reportBuilder.GetReport();
+
+            await botClient.SendTextMessageAsync(
+                    update.Message.From.Id,
+                    text: report
+                );
+        }
+    }
+
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         try {
             await TryParseNewMessage(botClient, update);
             await TryParseCallback(botClient, update, cancellationToken);
+            await TryHandleReport(botClient, update, cancellationToken );
         }
         catch (Exception ex) {
             logger.LogError(ex, "Error processing update");

@@ -21,7 +21,8 @@ public class TelegramProcessor(
     {
         botClient = new TelegramBotClient(token);
         await botClient.SetMyCommandsAsync([
-            new BotCommand() { Command = "/edit_categories", Description = "Редактировать категории" }
+            new BotCommand() { Command = "/edit_categories", Description = "Редактировать категории" },
+            new BotCommand() { Command = "/report", Description = "Отчет" }
         ], cancellationToken: cancellationToken);
 
 

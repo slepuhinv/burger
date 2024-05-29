@@ -9,5 +9,6 @@ public static class TelebramBotServiceCollectionExtensions
         services.AddSingleton<IUpdateHandler, UpdateHandler>();
         services.AddSingleton<TelegramProcessor>();
         services.AddHostedService(x => x.GetRequiredService<TelegramProcessor>());
+        services.AddTransient<ReportBuilder>();
     }
 }
