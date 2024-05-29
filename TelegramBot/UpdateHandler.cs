@@ -163,10 +163,12 @@ public class UpdateHandler(
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
+        Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("ru-RU");
+
         try {
             await TryParseNewMessage(botClient, update);
             await TryParseCallback(botClient, update, cancellationToken);
-            await TryHandleReport(botClient, update, cancellationToken );
+            await TryHandleReport(botClient, update, cancellationToken);
         }
         catch (Exception ex) {
             logger.LogError(ex, "Error processing update");
