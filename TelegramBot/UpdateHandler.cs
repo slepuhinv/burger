@@ -105,7 +105,7 @@ public class UpdateHandler(
 
             foreach (var userId in allUsers) {
                 var userText =
-                    $"{messageContent.Text}\r\n_[{update.Message.Chat.Username}](tg://user?id={update.Message.Chat.Id})_";
+                    $"{messageContent.Text}\r\n<a href=\"tg://user?id={update.Message.Chat.Id}\"><i>{update.Message.Chat.Username}</i></a>";
 
                 await botClient.SendTextMessageAsync(
                     userId,
@@ -149,15 +149,15 @@ public class UpdateHandler(
 
     private async Task TryHandleReport(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (update.Message?.Text == "/report") {
+        if (update.Message?.Text == "/report" && update.Message.From != null) {
             using var scope = scopeFactory.CreateScope();
             var reportBuilder = scope.ServiceProvider.GetRequiredService<ReportBuilder>();
             var report = reportBuilder.GetReport();
 
             await botClient.SendTextMessageAsync(
-                    update.Message.From.Id,
-                    text: report
-                );
+                update.Message.From.Id,
+                text: report,
+                cancellationToken: cancellationToken);
         }
     }
 
