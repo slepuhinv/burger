@@ -2,7 +2,8 @@ on:
     release:
         types: 
             - published
-
+    push:
+        
 jobs:
     publish:
         if: github.event.release.draft == false && github.event.release.prerelease == false
@@ -11,7 +12,9 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - run: echo "${{ github.event.release.body }}" >> release.md
+            - run: echo "${{ github.event.release.body }}" > release.md
+            - run: cat release.md
+            - run: ls -l
 
             - run: dotnet publish /t:PublishContainer /p:Configuration=Release /p:BuildNumber=${{ github.run_number }}
 
