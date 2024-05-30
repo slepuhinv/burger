@@ -14,7 +14,6 @@ public class TelegramProcessor(
 {
     private readonly string token = configuration.GetSection("TelegramBotToken").Get<string>() ?? throw new InvalidOperationException();
 
-    private readonly TaskCompletionSource taskCompletionSource = new();
     private TelegramBotClient? botClient;
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -28,12 +27,18 @@ public class TelegramProcessor(
 
         botClient.StartReceiving(updateHandler, cancellationToken: cancellationToken);
 
+        var releaseNotes = System.IO.File.ReadAllText("release.md");
+        var startupText = $"Я запустился.\r\nv.{Assembly.GetExecutingAssembly().GetName().Version}\r\n{Environment.OSVersion}\r\nЧто нового:\r\n{releaseNotes}";
+
         using (var scope = serviceScopeFactory.CreateScope()) {
             var ctx = scope.ServiceProvider.GetRequiredService<BurgerContext>();
             var users = ctx.Expenses.Select(x => x.ChatId).Distinct().ToList();
 
             foreach (var user in users) {
-                await botClient.SendTextMessageAsync(user, $"Я запустился.\r\nv.{Assembly.GetExecutingAssembly().GetName().Version}\r\n{Environment.MachineName}\r\n{Environment.OSVersion}", cancellationToken: cancellationToken);
+                await botClient.SendTextMessageAsync(
+                    user,
+                    startupText,
+                    cancellationToken: cancellationToken);
             }
         }
 
