@@ -5,16 +5,21 @@ namespace Burger.Entity;
 
 public class BurgerContext : DbContext
 {
-    private BurgerContextOptions options;
+    private readonly BurgerContextOptions options;
+    private readonly IHostEnvironment hostEnvironment;
 
     public DbSet<Expense> Expenses { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite($"Data Source={options.DbPath}");
+        var builder = optionsBuilder.UseSqlite($"Data Source={options.DbPath}");
+
+        if (hostEnvironment.IsDevelopment()) {
+            builder.LogTo(Console.WriteLine, LogLevel.Debug);
+        }
     }
 
-    public BurgerContext(IOptions<BurgerContextOptions> options)
+    public BurgerContext(IOptions<BurgerContextOptions> options, IHostEnvironment hostEnvironment)
     {
         this.options = options.Value;
 
@@ -22,5 +27,7 @@ public class BurgerContext : DbContext
         if (!string.IsNullOrEmpty(directory)) {
             Directory.CreateDirectory(directory);
         }
+
+        this.hostEnvironment = hostEnvironment;
     }
 }
