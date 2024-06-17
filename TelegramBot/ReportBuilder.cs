@@ -10,8 +10,9 @@ public class ReportBuilder(BurgerContext burgerContext)
         var expenses = burgerContext
             .Expenses
             .Where(x => !x.Deleted)
-            .GroupBy(x => x.Category)
-            .Select(x => new { Category = x.Key, Sum = x.Sum(e => e.Amount) })
+            .AsEnumerable()
+            .GroupBy(x => x.Category?.ToLower() ?? "Без категории")
+            .Select(x => new { Category = $"{x.Key[0].ToString().ToUpper()}{x.Key[1..]}", Sum = x.Sum(e => e.Amount) })
             .OrderByDescending(x => x.Sum)
             .ToArray();
 
