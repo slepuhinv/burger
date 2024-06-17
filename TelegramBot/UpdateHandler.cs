@@ -20,9 +20,11 @@ public class UpdateHandler(
 {
     private TelegramMessage BuildMessageContent(Expense expense)
     {
+        var descriptionLine = string.IsNullOrEmpty(expense.Description) ? "" : $"\r\n{expense.Description}";
+
         var text = expense.Deleted
             ? $"<s>💸\r\n<b>{expense.Category}</b>\n\r{expense.Amount:C}</s>"
-            : $"💸\r\n<b>{expense.Category}</b>\n\r{expense.Amount:C}";
+            : $"💸\r\n<b>{expense.Category}</b>\n\r{expense.Amount:C}{descriptionLine}";
 
         var replyMarkup = expense.Deleted
             ? null
@@ -59,20 +61,28 @@ public class UpdateHandler(
     {
         if (update.Message == null) return;
 
-        var text = update.Message.Text;
+        var text = update.Message.Text?.Trim();
         if (string.IsNullOrEmpty(text)) {
             return;
         }
 
-        if (TryParseAmount(text, out var amount)) {
-            if (!TryParseCategory(text, out var category)) {
+        var lines = text.Split("\n");
+
+        var firstLine = lines[0];
+
+        var description = lines.Length > 1 ? lines[1] : null;
+
+        if (TryParseAmount(firstLine, out var amount)) {
+            if (!TryParseCategory(firstLine, out var category)) {
                 category = "Без категории";
             }
+
             var expense = new Expense {
                 Amount = amount,
                 Category = category,
                 ChatId = update.Message.Chat.Id,
                 Timestamp = update.Message.Date,
+                Description = description,
             };
 
             long[] allUsers = [];
